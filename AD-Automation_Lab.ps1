@@ -69,8 +69,10 @@ function createUsers {
 		$givenName = $ADUserNames[$counter] | %{ $_.Split(' ')[0]; }
 		$surName = $ADUserNames[$counter] | %{ $_.Split(' ')[1]; }
 		$username = $ADUsers[$counter]
+		$userPassword = $ADPasswords[$counter]
+		$secpasswd = ConvertTo-SecureString -String $userPassword -AsPlainText -Force
 
-		Try { New-ADUser -Name $ADUsers[$counter] -GivenName $givenName -Surname $surName -SamAccountName $ADUsers[$counter] -AccountPassword(Read-Host -AsSecureString "Introduce la password para el usuario $username") -ChangePasswordAtLogon $False -DisplayName $ADUserNames[$counter] -Enabled $True } Catch {}
+		Try { New-ADUser -Name $ADUsers[$counter] -GivenName $givenName -Surname $surName -SamAccountName $ADUsers[$counter] -AccountPassword $secpasswd -ChangePasswordAtLogon $False -DisplayName $ADUserNames[$counter] -Enabled $True } Catch {}
 
 		$counter += 1
 	}
