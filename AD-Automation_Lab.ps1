@@ -110,6 +110,10 @@ function domainServicesInstallation {
     Write-Output ''
 
     Try { Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath "C:\\Windows\\NTDS" -DomainMode "7" -DomainName $domainName -DomainNetbiosName "s4vicorp" -ForestMode "7" -InstallDns:$true -LogPath "C:\\Windows\\NTDS" -NoRebootOnCompletion:$false -SysvolPath "C:\\Windows\\SYSVOL" -Force:$true } Catch { Restart-Computer }
+
+    Write-Output ''
+    Write-Host "[!] Se va a reiniciar el equipo. Deberas iniciar sesion como el usuario Administrador a nivel de dominio" -ForegroundColor "red"
+    Write-Output ''
 }
 
 # Creacion de usuarios a nivel de dominio
