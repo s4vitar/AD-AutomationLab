@@ -30,6 +30,14 @@ function helpPanel {
 	Write-Output ''
 	Write-Host "1. Una vez importado el modulo, ejecuta el comando domainServicesInstallation" -ForegroundColor "yellow"
 	Write-Output ''
+	Write-Host "2. Una vez el equipo quede configurado como DC, ejecuta el comando createUsers" -ForegroundColor "yellow"
+	Write-Output ''
+	Write-Host "3. En funcion del tipo de ataque que quieras desplegar, ejecuta cualquiera de los siguientes comandos:" -ForegroundColor "yellow"
+	Write-Output ''
+	Write-Host "	- createKerberoast" -Foreground "yellow"
+	Write-Host "	- createASRepRoast" -Foreground "yellow"
+	Write-Host "	- createSMBRelay" -Foreground "yellow"
+	Write-Output ''
 }
 
 # Instalacion de los servicios de dominio y configuracion del dominio
@@ -80,4 +88,18 @@ function createUsers {
 	Write-Output ''
 	Write-Host "[V] Todos los usuarios han sido creados" -ForegroundColor "green"
 	Write-Output ''
+}
+
+function createKerberoast {
+
+	Write-Output ''
+    Write-Host "[*] Configurando ataque Kerberoasting" -ForegroundColor "yellow"
+    Write-Output ''
+
+    net localgroup Administradores s4vicorp\SVC_SQLService /add
+    setspn -s http/s4vicorp.local:80 SVC_SQLService
+
+    Write-Output ''
+    Write-Host "[V] Laboratorio configurado para desplegar ataque Kerberoasting" -ForegroundColor "green"
+    Write-Output ''
 }
