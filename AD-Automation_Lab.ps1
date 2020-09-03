@@ -1,6 +1,7 @@
 
 # Banner
 function banner {
+
 	$banner = @()
 	$banner += ''
 	$banner += '*******                          **     *******'
@@ -27,6 +28,7 @@ $Global:ADUserNames = @('Marcelo Vazquez', 'Victor Garcia', 'SQL Service')
 
 # Panel de ayuda
 function helpPanel {
+
 	Write-Output ''
 	Write-Host "1. Una vez importado el modulo, ejecuta el comando domainServicesInstallation" -ForegroundColor "yellow"
 	Write-Output ''
@@ -37,6 +39,7 @@ function helpPanel {
 	Write-Host "	- createKerberoast" -Foreground "yellow"
 	Write-Host "	- createASRepRoast" -Foreground "yellow"
 	Write-Host "	- createSMBRelay" -Foreground "yellow"
+	Write-Host "    - createDNSAdmins" -Foreground "yellow"
 	Write-Output ''
 }
 
@@ -107,6 +110,7 @@ function createKerberoast {
 
 # Configuracion para el despliegue del ASREPRoast Attack
 function createASRepRoast {
+
 	Write-Output ''
     Write-Host "[*] Configurando ataque ASREPRoast" -ForegroundColor "yellow"
     Write-Output ''
@@ -116,5 +120,33 @@ function createASRepRoast {
 
     Write-Output ''
     Write-Host "[V] Laboratorio configurado para desplegar ataque ASREPRoast" -ForegroundColor "green"
+    Write-Output ''
+}
+
+# Configuracion para el despliegue del SMB Relay
+function createSMBRelay {
+
+    Write-Output ''
+    Write-Host "[*] Configurando entorno para hacer posible el SMB Relay" -ForegroundColor "yellow"
+    Write-Output ''
+
+	Set-SmbClientConfiguration -RequireSecuritySignature 0 -EnableSecuritySignature 0 -Confirm -Force
+
+    Write-Output ''
+    Write-Host "[V] Laboratorio configurado para desplegar ataque SMB Relay" -ForegroundColor "green"
+    Write-Output ''
+}
+
+# Configuracion para el despliegue del ataque contra dnsAdmins
+function createDNSAdmins {
+
+    Write-Output ''
+    Write-Host "[*] Configurando entorno para hacer posible el ataque contra dnsAdmins" -ForegroundColor "yellow"
+    Write-Output ''
+
+	net localgroup "DnsAdmins" mvazquez /add
+
+    Write-Output ''
+    Write-Host "[V] Laboratorio configurado para desplegar ataque contra dnsAdmins" -ForegroundColor "green"
     Write-Output ''
 }
