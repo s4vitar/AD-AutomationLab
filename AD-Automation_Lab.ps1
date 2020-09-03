@@ -39,7 +39,8 @@ function helpPanel {
 	Write-Host "	- createKerberoast" -Foreground "yellow"
 	Write-Host "	- createASRepRoast" -Foreground "yellow"
 	Write-Host "	- createSMBRelay" -Foreground "yellow"
-	Write-Host "    - createDNSAdmins" -Foreground "yellow"
+	Write-Host "	- createDNSAdmins" -Foreground "yellow"
+	Write-Host "	- createAll" -Foreground "yellow"
 	Write-Output ''
 }
 
@@ -61,10 +62,49 @@ function domainServicesInstallation {
 	$domainName = "s4vicorp.local"
 
     Write-Output ''
-    Write-Host "[*] Es probable que tras finalizar, sea necesario reiniciar el equipo para que los cambios tengan efecto." -ForegroundColor "red"
+    Write-Host "[*] Desinstalando Windows Defender" -ForegroundColor "yellow"
     Write-Output ''
 
-    Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath "C:\\Windows\\NTDS" -DomainMode "7" -DomainName $domainName -DomainNetbiosName "s4vicorp" -ForestMode "7" -InstallDns:$true -LogPath "C:\\Windows\\NTDS" -NoRebootOnCompletion:$false -SysvolPath "C:\\Windows\\SYSVOL" -Force:$true
+	Try {
+
+		$defenderOptions = Get-MpComputerStatus
+
+		if([string]::IsNullOrEmpty($defenderOptions)) {
+			Write-host "No se ha encontrado el Windows Defender corriendo en el servidor:" $env:computername -foregroundcolor "Green"
+		}
+
+		else {
+			Write-host "Windows Defender se encuentra activo en el servidor:" $env:computername -foregroundcolor "Cyan"
+			Write-host "	Se encuentra Windows Defender habilitado?" $defenderOptions.AntivirusEnabled
+			Write-host "	Se encuentra el servicio de Windows Defender habilitado?" $defenderOptions.AMServiceEnabled
+			Write-host "	Se encuentra el Antispware de Windows Defender habilitado?" $defenderOptions.AntispywareEnabled
+			Write-host "	Se encuentra el componente OnAccessProtection en Windows Defender habilitado?" $defenderOptions.OnAccessProtectionEnabled
+			Write-host "	Se encuentra el componente RealTimeProtection en Windows Defender habilitado?" $defenderOptions.RealTimeProtectionEnabled
+
+			Uninstall-WindowsFeature -Name Windows-Defender
+
+			Write-Output ''
+			Write-Host "[V] Windows Defender ha sido desinstalado, se va a reiniciar el equipo" -ForegroundColor "green"
+			Write-Output ''
+
+			Start-Sleep -Seconds 3
+
+			Restart-Computer
+
+			Start-Sleep -Seconds 10 # Margen de tiempo para que se reinicie el equipo y que el script no siga corriendo a los siguientes puntos
+		}
+	}
+
+	Catch {
+
+	    Write-host "El Windows Defender se encuentra desinstalado en el servidor:" $env:computername -foregroundcolor "Green"
+	}
+
+    Write-Output ''
+    Write-Host "[!] Es probable que tras finalizar, sea necesario reiniciar el equipo para que los cambios tengan efecto" -ForegroundColor "red"
+    Write-Output ''
+
+    Try { Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath "C:\\Windows\\NTDS" -DomainMode "7" -DomainName $domainName -DomainNetbiosName "s4vicorp" -ForestMode "7" -InstallDns:$true -LogPath "C:\\Windows\\NTDS" -NoRebootOnCompletion:$false -SysvolPath "C:\\Windows\\SYSVOL" -Force:$true } Catch { Restart-Computer }
 }
 
 # Creacion de usuarios a nivel de dominio
@@ -149,4 +189,12 @@ function createDNSAdmins {
     Write-Output ''
     Write-Host "[V] Laboratorio configurado para desplegar ataque contra dnsAdmins" -ForegroundColor "green"
     Write-Output ''
+}
+
+# Configurar todos los tipos de ataque
+function createAll {
+	createKerberoast
+	createASRepRoast
+	createSMBRelay
+	createDNSAdmins
 }
