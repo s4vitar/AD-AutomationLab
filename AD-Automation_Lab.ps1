@@ -105,6 +105,16 @@ function domainServicesInstallation {
     Write-Host "[!] Es probable que tras finalizar, sea necesario reiniciar el equipo para que los cambios tengan efecto" -ForegroundColor "red"
     Write-Output ''
 
+	Write-Output ''
+    Write-Host "[*] Cambiando el nombre de equipo a DC-Company" -ForegroundColor "yellow"
+    Write-Output ''
+
+    Rename-Computer -NewName "DC-Company"
+
+    Write-Output ''
+    Write-Host "[V] Nombre de equipo cambiado exitosamente" -ForegroundColor "green"
+    Write-Output ''
+
     Write-Output ''
     Write-Host "[*] A continuacion, deberas proporcionar la password del usuario Administrador del dominio" -ForegroundColor "yellow"
     Write-Output ''
