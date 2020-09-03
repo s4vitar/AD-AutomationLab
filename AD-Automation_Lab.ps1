@@ -74,12 +74,13 @@ function domainServicesInstallation {
 		}
 
 		else {
-			Write-host "Windows Defender se encuentra activo en el servidor:" $env:computername -foregroundcolor "Cyan"
-			Write-host "	Se encuentra Windows Defender habilitado?" $defenderOptions.AntivirusEnabled
-			Write-host "	Se encuentra el servicio de Windows Defender habilitado?" $defenderOptions.AMServiceEnabled
-			Write-host "	Se encuentra el Antispware de Windows Defender habilitado?" $defenderOptions.AntispywareEnabled
-			Write-host "	Se encuentra el componente OnAccessProtection en Windows Defender habilitado?" $defenderOptions.OnAccessProtectionEnabled
-			Write-host "	Se encuentra el componente RealTimeProtection en Windows Defender habilitado?" $defenderOptions.RealTimeProtectionEnabled
+			Write-host 'Windows Defender se encuentra activo en el servidor:' $env:computername -foregroundcolor "Cyan"
+			Write-Host ''
+			Write-host '	Se encuentra Windows Defender habilitado?' $defenderOptions.AntivirusEnabled
+			Write-host '	Se encuentra el servicio de Windows Defender habilitado?' $defenderOptions.AMServiceEnabled
+			Write-host '	Se encuentra el Antispware de Windows Defender habilitado?' $defenderOptions.AntispywareEnabled
+			Write-host '	Se encuentra el componente OnAccessProtection en Windows Defender habilitado?' $defenderOptions.OnAccessProtectionEnabled
+			Write-host '	Se encuentra el componente RealTimeProtection en Windows Defender habilitado?' $defenderOptions.RealTimeProtectionEnabled
 
 			Uninstall-WindowsFeature -Name Windows-Defender
 
@@ -87,7 +88,7 @@ function domainServicesInstallation {
 			Write-Host "[V] Windows Defender ha sido desinstalado, se va a reiniciar el equipo" -ForegroundColor "green"
 			Write-Output ''
 
-			Start-Sleep -Seconds 3
+			Start-Sleep -Seconds 5
 
 			Restart-Computer
 
@@ -102,6 +103,10 @@ function domainServicesInstallation {
 
     Write-Output ''
     Write-Host "[!] Es probable que tras finalizar, sea necesario reiniciar el equipo para que los cambios tengan efecto" -ForegroundColor "red"
+    Write-Output ''
+
+    Write-Output ''
+    Write-Host "[*] A continuacion, deberas proporcionar la password del usuario Administrador del dominio" -ForegroundColor "yellow"
     Write-Output ''
 
     Try { Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath "C:\\Windows\\NTDS" -DomainMode "7" -DomainName $domainName -DomainNetbiosName "s4vicorp" -ForestMode "7" -InstallDns:$true -LogPath "C:\\Windows\\NTDS" -NoRebootOnCompletion:$false -SysvolPath "C:\\Windows\\SYSVOL" -Force:$true } Catch { Restart-Computer }
