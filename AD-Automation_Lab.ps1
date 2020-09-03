@@ -90,6 +90,7 @@ function createUsers {
 	Write-Output ''
 }
 
+# Configuracion para el despliegue del Kerberoasting Attack
 function createKerberoast {
 
 	Write-Output ''
@@ -100,6 +101,20 @@ function createKerberoast {
     setspn -s http/s4vicorp.local:80 SVC_SQLService
 
     Write-Output ''
-    Write-Host "[V] Laboratorio configurado para desplegar ataque Kerberoasting" -ForegroundColor "green"
+    Write-Host "[V] Laboratorio configurado para desplegar ataque Kerberoast" -ForegroundColor "green"
+    Write-Output ''
+}
+
+# Configuracion para el despliegue del ASREPRoast Attack
+function createASRepRoast {
+	Write-Output ''
+    Write-Host "[*] Configurando ataque ASREPRoast" -ForegroundColor "yellow"
+    Write-Output ''
+
+    # En caso de querer alterar algun otro atributo: Get-ADUser -Identity SVC_SQLService -Properties *
+    Set-ADAccountControl SVC_SQLService -DoesNotRequirePreAuth $True
+
+    Write-Output ''
+    Write-Host "[V] Laboratorio configurado para desplegar ataque ASREPRoast" -ForegroundColor "green"
     Write-Output ''
 }
