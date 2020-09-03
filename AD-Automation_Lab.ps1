@@ -32,9 +32,11 @@ function helpPanel {
 	Write-Output ''
 	Write-Host "1. Una vez importado el modulo, ejecuta el comando domainServicesInstallation" -ForegroundColor "yellow"
 	Write-Output ''
-	Write-Host "2. Una vez el equipo quede configurado como DC, ejecuta el comando createUsers" -ForegroundColor "yellow"
+	Write-Output "2. Tras el primer reinicio, vuelve a ejecutar posteriormente el comando domainServicesInstallation" -ForegroundColor "yellow"
 	Write-Output ''
-	Write-Host "3. En funcion del tipo de ataque que quieras desplegar, ejecuta cualquiera de los siguientes comandos:" -ForegroundColor "yellow"
+	Write-Host "3. Una vez el equipo quede configurado como DC, ejecuta el comando createUsers" -ForegroundColor "yellow"
+	Write-Output ''
+	Write-Host "4. En funcion del tipo de ataque que quieras desplegar, ejecuta cualquiera de los siguientes comandos:" -ForegroundColor "yellow"
 	Write-Output ''
 	Write-Host "	- createKerberoast" -Foreground "yellow"
 	Write-Host "	- createASRepRoast" -Foreground "yellow"
@@ -82,6 +84,21 @@ function domainServicesInstallation {
 			Write-host '	Se encuentra el componente OnAccessProtection en Windows Defender habilitado?' $defenderOptions.OnAccessProtectionEnabled
 			Write-host '	Se encuentra el componente RealTimeProtection en Windows Defender habilitado?' $defenderOptions.RealTimeProtectionEnabled
 
+			Write-Output ''
+		    Write-Host "[*] Cambiando el nombre de equipo a DC-Company" -ForegroundColor "yellow"
+		    Write-Output ''
+
+		    Rename-Computer -NewName "DC-Company"
+
+			Write-Output ''
+		    Write-Host "[V] Nombre de equipo cambiado exitosamente" -ForegroundColor "green"
+		    Write-Output ''
+
+		    Write-Host "[!] Es probable que tras finalizar, sea necesario reiniciar el equipo para que los cambios tengan efecto" -ForegroundColor "red"
+
+			Write-Output ''
+			Write-Host "[*] Desinstalando Windows-Defender..." -ForegroundColor "yellow"
+
 			Uninstall-WindowsFeature -Name Windows-Defender
 
 			Write-Output ''
@@ -100,20 +117,6 @@ function domainServicesInstallation {
 
 	    Write-host "El Windows Defender se encuentra desinstalado en el servidor:" $env:computername -foregroundcolor "Green"
 	}
-
-    Write-Output ''
-    Write-Host "[!] Es probable que tras finalizar, sea necesario reiniciar el equipo para que los cambios tengan efecto" -ForegroundColor "red"
-    Write-Output ''
-
-	Write-Output ''
-    Write-Host "[*] Cambiando el nombre de equipo a DC-Company" -ForegroundColor "yellow"
-    Write-Output ''
-
-    Rename-Computer -NewName "DC-Company"
-
-    Write-Output ''
-    Write-Host "[V] Nombre de equipo cambiado exitosamente" -ForegroundColor "green"
-    Write-Output ''
 
     Write-Output ''
     Write-Host "[*] A continuacion, deberas proporcionar la password del usuario Administrador del dominio" -ForegroundColor "yellow"
