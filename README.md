@@ -31,10 +31,95 @@ Para aquellos/as que quieran ver el desarrollo de este script desde cero, os dej
 
 ¿Cómo ejecuto la herramienta?
 ======
-Tras importar el módulo, será posible a través del comando 'helpPanel', saber en todo momento qué pasos hay que ejecutar:
+Tras importar el módulo, será posible a través del comando '**helpPanel**', saber en todo momento qué pasos hay que ejecutar:
 
 <p align="center">
 <img src="Images/1.png"
 	alt="Primera"
-	style="floag: margin-right: 10px;" />
+	style="float: margin-right: 10px;" />
 </p>
+
+El primer paso, consistirá en ejecutar el comando **domainServicesInstallation**, el cual se encargará en primer lugar de cambiar el nombre del equipo y de desinstalar el antivirus en caso de detectarlo.
+
+Tras ejecutar este comando, comenzará la instalación de los servicios de dominio, incluyendo algunos módulos y utilidades como RSAT-ADDS, ServerManager y ADDSDeployment:
+
+<p align="center">
+<img src="Images/2.png"
+        alt="Segunda"
+        style="float: margin-right: 10px;" />
+</p>
+
+Una vez terminado, el antivirus será desinstalado y el nombre de equipo habrá sido cambiado, siendo necesario un reinicio del equipo (se hace de forma automática):
+
+<p align="center">
+<img src="Images/3.png"
+        alt="Tercera"
+        style="float: margin-right: 10px;" />
+</p>
+
+Este debería ser el último mensaje que se tendría que ver:
+
+<p align="center">
+<img src="Images/4.png"
+        alt="Cuarta"
+        style="float: margin-right: 10px;" />
+</p>
+
+Tras aplicar el reinicio, se deberá ejecutar nuevamente el comando **domainServicesInstallation**, pues en este caso, no se detectará el Windows Defender instalado y se procederá a la configuración del dominio en el servidor:
+
+<p align="center">
+<img src="Images/5.png"
+        alt="Quinta"
+        style="float: margin-right: 10px;" />
+</p>
+
+En este punto, deberemos introducir la contraseña deseada para el usuario Administrador del dominio, las cuales estaremos utilizando en el siguiente reinicio del sistema.
+
+Una vez introducidas las contraseñas, deberemos ver algo como esto:
+
+<p align="center">
+<img src="Images/6.png"
+        alt="Sexta"
+        style="float: margin-right: 10px;" />
+</p>
+
+Lo que sale en amarillo no son más que advertencias, por lo que por el momento no nos preocuparemos.
+
+Después de unos minutos, deberemos ver este último mensaje:
+
+<p align="center">
+<img src="Images/7.png"
+        alt="Séptima"
+        style="float: margin-right: 10px;" />
+</p>
+
+Por lo que se reiniciará el equipo. Es posible que tras el reinicio haya que esperar unos minutos, pues se realizarán una serie de configuraciones sobre el servidor para que actúe como dominio.
+
+El próximo inicio de sesión, se hará como usuario Administrador del dominio, siendo necesario introducir la contraseña previamente definida para dicho usuario:
+
+<p align="center">
+<img src="Images/8.png"
+        alt="Octava"
+        style="float: margin-right: 10px;" />
+</p>
+
+Ya casi terminando, volvemos a importar el módulo y haremos uso de la función **createUsers** para crear los usuarios en el AD:
+
+<p align="center">
+<img src="Images/9.png"
+        alt="Novena"
+        style="float: margin-right: 10px;" />
+</p>
+
+Por último, ejecutamos el comando **createAll** para configurar todos los ataques descritos:
+
+<p align="center">
+<img src="Images/10.png"
+        alt="Décima"
+        style="float: margin-right: 10px;" />
+</p>
+
+En este punto, ya deberíamos poder ejecutar todos los ataques vistos en la saga de 'Pentesting en entornos AD' disponible en mi canal de YouTube.
+
+Cabe decir que en este caso, no estamos conectado ninguna máquina al dominio. En los vídeos de mi canal, conectamos 2 máquinas de usuario/empleado al DC para de esta forma tras desplegar el ataque del SMB Relay, ser capaces de interceptar los Hashes NTLM de los usuarios vgarcia y mvazquez. Importante recordar que para que este ataque en concreto sea posible, es necesario en el equipo 'Marcelo-PC', hacer al usuario 'vgarcia' usuario administrador local del equipo 'Marcelo-PC' o viceversa, es decir, al usuario 'mvazquez' hacerlo miembro del grupo administradores locales del equipo 'Victor-PC'. De esta forma, el Relaying dará un **SUCCESS** pudiendo así interceptar lo que nos interesa, derivando el ataque incluso a ejecución remota de comandos.
+
