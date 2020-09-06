@@ -28,6 +28,11 @@ Para aquellos/as que quieran ver el desarrollo de este script desde cero, os dej
 - [Máquina Mantis - HackTheBox | ldapdomaindump y goldenPac Attack](https://www.youtube.com/watch?v=BO7_1s8y8zM)
 - [Máquina Sizzle - HackTheBox | SCF Files, Bloodhound, Neo4j, SharpHound, Impacket](https://www.youtube.com/watch?v=0rmG5EneRuQ)
 
+Requisitos
+======
+Todas las pruebas han sido realizadas sobre un Windows Server 2016. En caso de usar otra versión hay que tener en cuenta que ciertos parámetros como -DomainMode o -ForestMode deben ser cambiados, pues de lo contrario pueden surgir ciertos problemas.
+
+Mi recomendación: Usa Windows Server 2016 para desplegar este script.
 
 ¿Cómo ejecuto la herramienta?
 ======
