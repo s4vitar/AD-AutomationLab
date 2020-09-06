@@ -126,5 +126,7 @@ Por último, ejecutamos el comando **createAll** para configurar todos los ataqu
 
 En este punto, ya deberíamos poder ejecutar todos los ataques vistos en la saga de 'Pentesting en entornos AD' disponible en mi canal de YouTube.
 
-Cabe decir que en este caso, no estamos conectado ninguna máquina al dominio. En los vídeos de mi canal, conectamos 2 máquinas de usuario/empleado al DC para de esta forma tras desplegar el ataque del SMB Relay, ser capaces de interceptar los Hashes NTLM de los usuarios vgarcia y mvazquez. Importante recordar que para que este ataque en concreto sea posible, es necesario en el equipo 'Marcelo-PC', hacer al usuario 'vgarcia' usuario administrador local del equipo 'Marcelo-PC' o viceversa, es decir, al usuario 'mvazquez' hacerlo miembro del grupo administradores locales del equipo 'Victor-PC'. De esta forma, el Relaying dará un **SUCCESS** pudiendo así interceptar lo que nos interesa, derivando el ataque incluso a ejecución remota de comandos.
+Cabe decir que en este caso, no estamos conectado ninguna máquina al dominio. En los vídeos de mi canal, conectamos 2 máquinas de usuario/empleado al DC para de esta forma tras desplegar el ataque del SMB Relay, ser capaces de interceptar los Hashes NTLM de los usuarios vgarcia y mvazquez. 
+
+Importante recordar que para que este ataque en concreto sea posible, es necesario en el equipo '**Marcelo-PC**', hacer al usuario '**vgarcia**' usuario administrador local del equipo '**Marcelo-PC**' o viceversa, es decir, al usuario '**mvazquez**' hacerlo miembro del grupo administradores locales del equipo '**Victor-PC**'. De esta forma, el Relaying dará un **SUCCESS** pudiendo así interceptar lo que nos interesa, pudiendo derivando el ataque a ejecución remota de comandos.
 
