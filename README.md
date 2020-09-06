@@ -30,9 +30,9 @@ Para aquellos/as que quieran ver el desarrollo de este script desde cero, os dej
 
 Requisitos
 ======
-Todas las pruebas han sido realizadas sobre un Windows Server 2016. En caso de usar otra versión hay que tener en cuenta que ciertos parámetros como -DomainMode o -ForestMode deben ser cambiados, pues de lo contrario pueden surgir ciertos problemas.
+Todas las pruebas han sido realizadas sobre un Windows Server 2016. En caso de usar otra versión hay que tener en cuenta que ciertos parámetros como -DomainMode o -ForestMode deben ser cambiados, pues de lo contrario pueden surgir inconvenientes.
 
-Mi recomendación: Usa Windows Server 2016 para desplegar este script.
+**Mi recomendación**: Usa Windows Server 2016 para desplegar este script.
 
 ¿Cómo ejecuto la herramienta?
 ======
@@ -44,7 +44,7 @@ Tras importar el módulo, será posible a través del comando '**helpPanel**', s
 	style="float: margin-right: 10px;" />
 </p>
 
-El primer paso, consistirá en ejecutar el comando **domainServicesInstallation**, el cual se encargará en primer lugar de cambiar el nombre del equipo y de desinstalar el antivirus en caso de detectarlo.
+El primer paso, consistirá en ejecutar el comando **domainServicesInstallation**, el cual se encargará en primer lugar de cambiar el nombre del equipo y de desinstalar el Windows Defender en caso de detectarlo.
 
 Tras ejecutar este comando, comenzará la instalación de los servicios de dominio, incluyendo algunos módulos y utilidades como RSAT-ADDS, ServerManager y ADDSDeployment:
 
@@ -54,7 +54,7 @@ Tras ejecutar este comando, comenzará la instalación de los servicios de domin
         style="float: margin-right: 10px;" />
 </p>
 
-Una vez terminado, el antivirus será desinstalado y el nombre de equipo habrá sido cambiado, siendo necesario un reinicio del equipo (se hace de forma automática):
+Una vez terminado, el Windows Defender será desinstalado y el nombre de equipo habrá sido cambiado, siendo necesario un reinicio del equipo (se hace de forma automática):
 
 <p align="center">
 <img src="Images/3.png"
