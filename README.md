@@ -17,7 +17,7 @@ Para aquellos/as que quieran ver el desarrollo de este script desde cero, os dej
 
 - [Pentesting en entornos AD #3 - Bloodhound, DCSync, dnsAdmins, SCFiles, evil-winrm](https://www.youtube.com/watch?v=7z7So-2XVis)
 
-¿Quieres aprender más acerca de ataques de AD?, te dejo por aquí los siguientes vídeos de mi canal:
+¿Quieres aprender más acerca de ataques en entornos AD?, te dejo por aquí los siguientes vídeos de mi canal:
 
 - [Pentesting en entornos AD #2 - Kerberoasting, ASRepRoast, Golden Ticket, PassTheTicket](https://www.youtube.com/watch?v=KYFlvFfh-Js)
 - [Pentesting en entornos AD #1 - Samba Relay, PassTheHash](https://www.youtube.com/watch?v=LLevcaB4qew)
@@ -31,3 +31,10 @@ Para aquellos/as que quieran ver el desarrollo de este script desde cero, os dej
 
 ¿Cómo ejecuto la herramienta?
 ======
+Tras importar el módulo, será posible a través del comando 'helpPanel', saber en todo momento qué pasos hay que ejecutar:
+
+<p align="center">
+<img src="Images/1.png"
+	alt="Primera"
+	style="floag: margin-right: 10px;" />
+</p>
