@@ -1,222 +1,232 @@
+<#
+.SYNOPSIS
+    AD-AutomationLab: PowerShell script for automated deployment of a vulnerable AD environment.
+.DESCRIPTION
+    This script automates the deployment of a vulnerable Active Directory (AD) environment for educational and testing purposes.
+    It configures various attacks such as Kerberoasting, ASRepRoast, SMB Relay, and abuse of dnsAdmins.
+    The script guides the user through the necessary steps, including domain services installation, user creation, and attack configuration.
+    It is designed to be used on Windows Server 2016.
+.NOTES
+    Author: Marcelo Vazquez (aka S4vitar)
+    GitHub Repository: https://github.com/s4vitar/AD-AutomationLab
+    YouTube Channel: https://www.youtube.com/c/MarceloVazquez
+    Video Tutorials: https://www.youtube.com/playlist?list=PLID1WJKc9CH5OuYxKAaQaEiOJ_2RbyFAT
+#>
 
 # Banner
-function banner {
+function Show-Banner {
+    $banner = @(
+        '*******                          **     *******',
+        '/**////**                        ****   /**////**',
+        '/**   /** ***     ** *******    **//**  /**    /**',
+        '/******* //**  * /**//**///**  **  //** /**    /**     [By Marcelo Vazquez (aka S4vitar)]',
+        '/**////   /** ***/** /**  /** **********/**    /**',
+        '/**       /****/**** /**  /**/**//////**/**    **',
+        '/**       ***/ ///** ***  /**/**     /**/*******',
+        '//       ///    /// ///   // //      // ///////'
+    )
 
-	$banner = @()
-	$banner += ''
-	$banner += '*******                          **     *******'
-	$banner += '/**////**                        ****   /**////**'
-	$banner += '/**   /** ***     ** *******    **//**  /**    /**'
-	$banner += '/******* //**  * /**//**///**  **  //** /**    /**     [By Marcelo Vazquez (aka S4vitar)]'
-	$banner += '/**////   /** ***/** /**  /** **********/**    /**'
-	$banner += '/**       /****/**** /**  /**/**//////**/**    **'
-	$banner += '/**       ***/ ///** ***  /**/**     /**/*******'
-	$banner += '//       ///    /// ///   // //      // ///////'
-	$banner += ''
-	$banner | foreach-object {
-		Write-Host $_ -ForegroundColor (Get-Random -Input @('Green','Cyan','Yellow','gray','white'))
-	}
+    $banner | ForEach-Object {
+        Write-Host $_ -ForegroundColor (Get-Random -Input @('Green','Cyan','Yellow','gray','white'))
+    }
 
-	Start-Sleep -Seconds 3
-	Clear-Host
+    Start-Sleep -Seconds 3
+    Clear-Host
 }
 
-# Declaracion de variables
+# Global Variables
 $Global:ADUsers = @('mvazquez', 'vgarcia', 'SVC_SQLService')
 $Global:ADPasswords = @('Password1', 'Password2', 'MYpassword123#')
 $Global:ADUserNames = @('Marcelo Vazquez', 'Victor Garcia', 'SQL Service')
 
-# Panel de ayuda
-function helpPanel {
-
-	Write-Output ''
-	Write-Host "1. Una vez importado el modulo, ejecuta el comando domainServicesInstallation" -ForegroundColor "yellow"
-	Write-Output ''
-	Write-Output "2. Tras el primer reinicio, vuelve a ejecutar posteriormente el comando domainServicesInstallation" -ForegroundColor "yellow"
-	Write-Output ''
-	Write-Host "3. Una vez el equipo quede configurado como DC, ejecuta el comando createUsers" -ForegroundColor "yellow"
-	Write-Output ''
-	Write-Host "4. En funcion del tipo de ataque que quieras desplegar, ejecuta cualquiera de los siguientes comandos:" -ForegroundColor "yellow"
-	Write-Output ''
-	Write-Host "	- createKerberoast" -Foreground "yellow"
-	Write-Host "	- createASRepRoast" -Foreground "yellow"
-	Write-Host "	- createSMBRelay" -Foreground "yellow"
-	Write-Host "	- createDNSAdmins" -Foreground "yellow"
-	Write-Host "	- createAll" -Foreground "yellow"
-	Write-Output ''
-}
-
-# Instalacion de los servicios de dominio y configuracion del dominio
-function domainServicesInstallation {
-
-	banner
-
-	Write-Output ''
-	Write-Host "[*] Instalando los servicios de dominio y configurando el dominio" -ForegroundColor "yellow"
-	Write-Output ''
-
-	Add-WindowsFeature RSAT-ADDS
-	Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
-
-	Import-Module ServerManager
-	Import-Module ADDSDeployment
-
-	$domainName = "s4vicorp.local"
-
+# Help Panel
+function Show-HelpPanel {
     Write-Output ''
-    Write-Host "[*] Desinstalando Windows Defender" -ForegroundColor "yellow"
+    Write-Host "1. After importing the module, run the 'domainServicesInstallation' command." -ForegroundColor "yellow"
     Write-Output ''
-
-	Try {
-
-		$defenderOptions = Get-MpComputerStatus
-
-		if([string]::IsNullOrEmpty($defenderOptions)) {
-			Write-host "No se ha encontrado el Windows Defender corriendo en el servidor:" $env:computername -foregroundcolor "Green"
-		}
-
-		else {
-			Write-host 'Windows Defender se encuentra activo en el servidor:' $env:computername -foregroundcolor "Cyan"
-			Write-Host ''
-			Write-host '	Se encuentra Windows Defender habilitado?' $defenderOptions.AntivirusEnabled
-			Write-host '	Se encuentra el servicio de Windows Defender habilitado?' $defenderOptions.AMServiceEnabled
-			Write-host '	Se encuentra el Antispware de Windows Defender habilitado?' $defenderOptions.AntispywareEnabled
-			Write-host '	Se encuentra el componente OnAccessProtection en Windows Defender habilitado?' $defenderOptions.OnAccessProtectionEnabled
-			Write-host '	Se encuentra el componente RealTimeProtection en Windows Defender habilitado?' $defenderOptions.RealTimeProtectionEnabled
-
-			Write-Output ''
-		    Write-Host "[*] Cambiando el nombre de equipo a DC-Company" -ForegroundColor "yellow"
-		    Write-Output ''
-
-		    Rename-Computer -NewName "DC-Company"
-
-			Write-Output ''
-		    Write-Host "[V] Nombre de equipo cambiado exitosamente" -ForegroundColor "green"
-		    Write-Output ''
-
-		    Write-Host "[!] Es probable que tras finalizar, sea necesario reiniciar el equipo para que los cambios tengan efecto" -ForegroundColor "red"
-
-			Write-Output ''
-			Write-Host "[*] Desinstalando Windows-Defender..." -ForegroundColor "yellow"
-
-			Uninstall-WindowsFeature -Name Windows-Defender
-
-			Write-Output ''
-			Write-Host "[V] Windows Defender ha sido desinstalado, se va a reiniciar el equipo" -ForegroundColor "green"
-			Write-Output ''
-
-			Start-Sleep -Seconds 5
-
-			Restart-Computer
-
-			Start-Sleep -Seconds 10 # Margen de tiempo para que se reinicie el equipo y que el script no siga corriendo a los siguientes puntos
-		}
-	}
-
-	Catch {
-
-	    Write-host "El Windows Defender se encuentra desinstalado en el servidor:" $env:computername -foregroundcolor "Green"
-	}
-
+    Write-Output "2. After the first reboot, run the 'domainServicesInstallation' command again." -ForegroundColor "yellow"
     Write-Output ''
-    Write-Host "[*] A continuacion, deberas proporcionar la password del usuario Administrador del dominio" -ForegroundColor "yellow"
+    Write-Host "3. Once the machine is configured as a DC, run the 'createUsers' command." -ForegroundColor "yellow"
     Write-Output ''
-
-    Try { Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath "C:\\Windows\\NTDS" -DomainMode "7" -DomainName $domainName -DomainNetbiosName "s4vicorp" -ForestMode "7" -InstallDns:$true -LogPath "C:\\Windows\\NTDS" -NoRebootOnCompletion:$false -SysvolPath "C:\\Windows\\SYSVOL" -Force:$true } Catch { Restart-Computer }
-
+    Write-Host "4. Depending on the type of attack you want to deploy, run one of the following commands:" -ForegroundColor "yellow"
     Write-Output ''
-    Write-Host "[!] Se va a reiniciar el equipo. Deberas iniciar sesion como el usuario Administrador a nivel de dominio" -ForegroundColor "red"
+    Write-Host "    - createKerberoast" -Foreground "yellow"
+    Write-Host "    - createASRepRoast" -Foreground "yellow"
+    Write-Host "    - createSMBRelay" -Foreground "yellow"
+    Write-Host "    - createDNSAdmins" -Foreground "yellow"
+    Write-Host "    - createAll" -Foreground "yellow"
     Write-Output ''
 }
 
-# Creacion de usuarios a nivel de dominio
-function createUsers {
+# Domain Services Installation
+function Install-DomainServices {
+    Show-Banner
+    Write-Output ''
+    Write-Host "[*] Installing domain services and configuring the domain" -ForegroundColor "yellow"
+    Write-Output ''
 
-	$counter = 0
+    Add-WindowsFeature RSAT-ADDS
+    Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
 
-	Foreach ($user in $ADUsers) {
-		Write-Output ''
-		Write-Host "[*] Creando usuario $user" -ForegroundColor "gray"
-		Write-Output ''
+    Import-Module ServerManager
+    Import-Module ADDSDeployment
 
-		$givenName = $ADUserNames[$counter] | %{ $_.Split(' ')[0]; }
-		$surName = $ADUserNames[$counter] | %{ $_.Split(' ')[1]; }
-		$username = $ADUsers[$counter]
-		$userPassword = $ADPasswords[$counter]
-		$secpasswd = ConvertTo-SecureString -String $userPassword -AsPlainText -Force
+    $domainName = "s4vicorp.local"
 
-		Try { New-ADUser -Name $ADUsers[$counter] -GivenName $givenName -Surname $surName -SamAccountName $ADUsers[$counter] -AccountPassword $secpasswd -ChangePasswordAtLogon $False -DisplayName $ADUserNames[$counter] -Enabled $True } Catch {}
+    Write-Output ''
+    Write-Host "[*] Uninstalling Windows Defender" -ForegroundColor "yellow"
+    Write-Output ''
 
-		$counter += 1
-	}
+    try {
+        $defenderOptions = Get-MpComputerStatus
 
-	Write-Output ''
-	Write-Host "[V] Todos los usuarios han sido creados" -ForegroundColor "green"
-	Write-Output ''
+        if ($defenderOptions) {
+            Write-host "Windows Defender is active on the server:" $env:computername -foregroundcolor "Cyan"
+            Write-Output ''
+            Write-host '    Is Windows Defender enabled?' $defenderOptions.AntivirusEnabled
+            Write-host '    Is Windows Defender service enabled?' $defenderOptions.AMServiceEnabled
+            Write-host '    Is Windows Defender Antispyware enabled?' $defenderOptions.AntispywareEnabled
+            Write-host '    Is Windows Defender OnAccessProtection enabled?' $defenderOptions.OnAccessProtectionEnabled
+            Write-host '    Is Windows Defender RealTimeProtection enabled?' $defenderOptions.RealTimeProtectionEnabled
+
+            Write-Output ''
+            Write-Host "[*] Changing the computer name to DC-Company" -ForegroundColor "yellow"
+            Write-Output ''
+
+            Rename-Computer -NewName "DC-Company"
+
+            Write-Output ''
+            Write-Host "[V] Computer name changed successfully" -ForegroundColor "green"
+            Write-Output ''
+
+            Write-Host "[!] After finishing, a system restart may be necessary for the changes to take effect" -ForegroundColor "red"
+
+            Write-Output ''
+            Write-Host "[*] Uninstalling Windows-Defender..." -ForegroundColor "yellow"
+
+            Uninstall-WindowsFeature -Name Windows-Defender
+
+            Write-Output ''
+            Write-Host "[V] Windows Defender has been uninstalled. Restarting the system" -ForegroundColor "green"
+            Write-Output ''
+
+            Start-Sleep -Seconds 5
+
+            Restart-Computer
+
+            Start-Sleep -Seconds 10 # Margin of time for the system to restart and prevent the script from continuing to the next steps
+        }
+        else {
+            Write-host "Windows Defender is not running on the server:" $env:computername -foregroundcolor "Green"
+        }
+    }
+    catch {
+        Write-host "Windows Defender is uninstalled on the server:" $env:computername -foregroundcolor "Green"
+    }
+
+    Write-Output ''
+    Write-Host "[*] Please provide the password for the domain Administrator user" -ForegroundColor "yellow"
+    Write-Output ''
+
+    try {
+        Install-ADDSForest -CreateDnsDelegation:$false -DatabasePath "C:\\Windows\\NTDS" -DomainMode "7" -DomainName $domainName -DomainNetbiosName "s4vicorp" -ForestMode "7" -InstallDns:$true -LogPath "C:\\Windows\\NTDS" -NoRebootOnCompletion:$false -SysvolPath "C:\\Windows\\SYSVOL" -Force:$true
+    }
+    catch {
+        Restart-Computer
+    }
+
+    Write-Output ''
+    Write-Host "[!] The system will restart. Log in as the domain Administrator user after the restart" -ForegroundColor "red"
+    Write-Output ''
 }
 
-# Configuracion para el despliegue del Kerberoasting Attack
-function createKerberoast {
+# Create Users in AD
+function Create-ADUsers {
+    $counter = 0
 
-	Write-Output ''
-    Write-Host "[*] Configurando ataque Kerberoasting" -ForegroundColor "yellow"
+    Foreach ($user in $ADUsers) {
+        Write-Output ''
+        Write-Host "[*] Creating user $user" -ForegroundColor "gray"
+        Write-Output ''
+
+        $givenName = $ADUserNames[$counter] | ForEach-Object { $_.Split(' ')[0]; }
+        $surName = $ADUserNames[$counter] | ForEach-Object { $_.Split(' ')[1]; }
+        $username = $ADUsers[$counter]
+        $userPassword = $ADPasswords[$counter]
+        $secpasswd = ConvertTo-SecureString -String $userPassword -AsPlainText -Force
+
+        Try {
+            New-ADUser -Name $ADUsers[$counter] -GivenName $givenName -Surname $surName -SamAccountName $ADUsers[$counter] -AccountPassword $secpasswd -ChangePasswordAtLogon $False -DisplayName $ADUserNames[$counter] -Enabled $True
+        }
+        Catch {}
+
+        $counter += 1
+    }
+
+    Write-Output ''
+    Write-Host "[V] All users have been created" -ForegroundColor "green"
+    Write-Output ''
+}
+
+# Configure Kerberoast Attack
+function Configure-Kerberoast {
+    Write-Output ''
+    Write-Host "[*] Configuring Kerberoast attack" -ForegroundColor "yellow"
     Write-Output ''
 
     net localgroup Administradores s4vicorp\SVC_SQLService /add
     setspn -s http/s4vicorp.local:80 SVC_SQLService
 
     Write-Output ''
-    Write-Host "[V] Laboratorio configurado para desplegar ataque Kerberoast" -ForegroundColor "green"
+    Write-Host "[V] Lab configured for deploying Kerberoast attack" -ForegroundColor "green"
     Write-Output ''
 }
 
-# Configuracion para el despliegue del ASREPRoast Attack
-function createASRepRoast {
-
-	Write-Output ''
-    Write-Host "[*] Configurando ataque ASREPRoast" -ForegroundColor "yellow"
+# Configure ASRepRoast Attack
+function Configure-ASRepRoast {
+    Write-Output ''
+    Write-Host "[*] Configuring ASRepRoast attack" -ForegroundColor "yellow"
     Write-Output ''
 
-    # En caso de querer alterar algun otro atributo: Get-ADUser -Identity SVC_SQLService -Properties *
+    # To alter any other attribute if needed: Get-ADUser -Identity SVC_SQLService -Properties *
     Set-ADAccountControl SVC_SQLService -DoesNotRequirePreAuth $True
 
     Write-Output ''
-    Write-Host "[V] Laboratorio configurado para desplegar ataque ASREPRoast" -ForegroundColor "green"
+    Write-Host "[V] Lab configured for deploying ASRepRoast attack" -ForegroundColor "green"
     Write-Output ''
 }
 
-# Configuracion para el despliegue del SMB Relay
-function createSMBRelay {
-
+# Configure SMB Relay Attack
+function Configure-SMBRelay {
     Write-Output ''
-    Write-Host "[*] Configurando entorno para hacer posible el SMB Relay" -ForegroundColor "yellow"
-    Write-Output ''
-
-	Set-SmbClientConfiguration -RequireSecuritySignature 0 -EnableSecuritySignature 0 -Confirm -Force
-
-    Write-Output ''
-    Write-Host "[V] Laboratorio configurado para desplegar ataque SMB Relay" -ForegroundColor "green"
-    Write-Output ''
-}
-
-# Configuracion para el despliegue del ataque contra dnsAdmins
-function createDNSAdmins {
-
-    Write-Output ''
-    Write-Host "[*] Configurando entorno para hacer posible el ataque contra dnsAdmins" -ForegroundColor "yellow"
+    Write-Host "[*] Configuring environment for SMB Relay attack" -ForegroundColor "yellow"
     Write-Output ''
 
-	net localgroup "DnsAdmins" mvazquez /add
+    Set-SmbClientConfiguration -RequireSecuritySignature 0 -EnableSecuritySignature 0 -Confirm -Force
 
     Write-Output ''
-    Write-Host "[V] Laboratorio configurado para desplegar ataque contra dnsAdmins" -ForegroundColor "green"
+    Write-Host "[V] Lab configured for deploying SMB Relay attack" -ForegroundColor "green"
     Write-Output ''
 }
 
-# Configurar todos los tipos de ataque
-function createAll {
-	createKerberoast
-	createASRepRoast
-	createSMBRelay
-	createDNSAdmins
+# Configure DNSAdmins Attack
+function Configure-DNSAdmins {
+    Write-Output ''
+    Write-Host "[*] Configuring environment for DNSAdmins attack" -ForegroundColor "yellow"
+    Write-Output ''
+
+    net localgroup "DnsAdmins" mvazquez /add
+
+    Write-Output ''
+    Write-Host "[V] Lab configured for deploying DNSAdmins attack" -ForegroundColor "green"
+    Write-Output ''
 }
+
+# Configure All Attacks
+function Configure-AllAttacks {
+    Configure-Kerberoast
+    Configure-ASRepRoast
+    Configure-SMBRelay
+    Configure-DNSAdmins
+}
+
